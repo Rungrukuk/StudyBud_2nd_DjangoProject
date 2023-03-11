@@ -1,0 +1,9 @@
+{
+    "django.i18n": false,
+    "django.showContributeNotification": false,
+    "django.snippets.use": false,
+    "html.suggest.html5": true,
+    "editor.linkedEditing": true,
+    "html.autoClosingTags": true,
+
+}
