@@ -1,0 +1,16 @@
+<h3>Browse Topics</h3>
+<form method = "GET" action="{% url 'home' %}">
+    <input type = "text" name="q" placeholder = "Searh Rooms..." />
+</form>
+<hr>
+<div >
+    <a href="{% url 'home' %}" >All</a>
+</div>
+<hr>
+{% for topic in topics  %}
+
+    <div >
+        <a href="{% url 'home'%}?q={{topic.name}} " >{{topic.name}}</a>
+    </div>
+    <hr>
+{% endfor %}
