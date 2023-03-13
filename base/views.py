@@ -63,9 +63,19 @@ def room(request, pk):
 
 
 def userProfile(request, pk):
+    q = request.GET.get("q") if request.GET.get("q") != None else ""
     user = User.objects.get(id=pk)
-    rooms = user.room_set.all()  # type: ignore
-    room_messages = user.message_set.all()  # type: ignore
+    rooms = user.room_set.filter(  # type: ignore
+        Q(topic__name__icontains=q)
+        | Q(name__icontains=q)
+        | Q(description__icontains=q)
+        | Q(host__username__icontains=q)
+    )
+    room_messages = user.message_set.filter(  # type: ignore
+        Q(room__topic__name__icontains=q)
+        | Q(room__name__icontains=q)
+        | Q(user__username__icontains=q)
+    )
     topics = Topic.objects.all()  # type: ignore
     context = {
         "user": user,
@@ -80,9 +90,15 @@ def userProfile(request, pk):
 def deleteMessage(request, pk):
     message = Message.objects.get(id=int(pk))
     if request.method == "POST":
+        if (
+            Message.objects.filter(user=message.user).count == 1
+            and message.user != message.room.host
+        ):
+            message.room.participants.get(username=message.user.username).remove()
         message.delete()
         return redirect("home")
-    return render(request, "base/delete.html", {"obj": message})
+    context = {"obj": message, "class": "message"}
+    return render(request, "base/delete.html", context)
 
 
 @login_required(login_url="login")
@@ -91,7 +107,9 @@ def createRoom(request):
     if request.method == "POST":
         form = RoomForm(request.POST)
         if form.is_valid():
-            form.save()
+            room = form.save(commit=False)
+            room.host = request.user
+            room.save()
             return redirect("home")
     context = {"form": form}
     return render(request, "base/room_form.html", context)
@@ -116,7 +134,7 @@ def deleteRoom(request, pk):
     if request.method == "POST":
         room.delete()
         return redirect("home")
-    return render(request, "base/delete.html", {"obj": room})
+    return render(request, "base/delete.html", {"obj": room, "class": "room"})
 
 
 def loginPage(request):

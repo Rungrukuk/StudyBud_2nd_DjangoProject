@@ -10,6 +10,6 @@ urlpatterns = [
     path("login/", views.loginPage, name="login"),
     path("register/", views.registerPage, name="register"),
     path("logout/", views.logoutUser, name="logout"),
-    path("delete-message/<str:pk>", views.deleteMessage, name="delete-message"),
-    path("profile/<str:pk>", views.userProfile, name="user-profile"),
+    path("delete-message/<str:pk>/", views.deleteMessage, name="delete-message"),
+    path("profile/<str:pk>/", views.userProfile, name="user-profile"),
 ]
